@@ -55,7 +55,19 @@ function doPost(e) {
 
 function handleRequest(e) {
   try {
-    var params = e.parameter;
+    // Merge GET and POST params (GET params always available in e.parameter)
+    var params = e.parameter || {};
+    // If POST body has form params, merge them (fallback)
+    if (e.postData && e.postData.contents) {
+      try {
+        var postParams = {};
+        e.postData.contents.split("&").forEach(function(pair) {
+          var kv = pair.split("=");
+          if (kv.length === 2) postParams[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1].replace(/\+/g, " "));
+        });
+        for (var k in postParams) { if (!params[k]) params[k] = postParams[k]; }
+      } catch(ex) {}
+    }
     var action = params.action;
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var result;
