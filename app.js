@@ -8,25 +8,17 @@ let mapMarker = null;
 let cache = { maktabs: [], teachers: [], students: [] };
 
 /* ---------------------- API HELPER ---------------------- */
+// All calls use GET (URL params) to avoid CORS preflight issues with Apps Script
 function api(action, params, method) {
   return new Promise((resolve, reject) => {
-    let url = CONFIG.SCRIPT_URL + "?action=" + encodeURIComponent(action);
-    let body = null;
-    let opts = { method: "POST" };
-
     let allParams = Object.assign({ action: action }, params || {});
-
-    if (!method || method === "POST") {
-      let formData = new URLSearchParams();
-      for (let k in allParams) formData.append(k, allParams[k] === undefined || allParams[k] === null ? "" : allParams[k]);
-      opts.body = formData;
-    } else {
-      let q = new URLSearchParams(allParams);
-      url = CONFIG.SCRIPT_URL + "?" + q.toString();
-      opts = { method: "GET" };
+    let q = new URLSearchParams();
+    for (let k in allParams) {
+      q.append(k, allParams[k] === undefined || allParams[k] === null ? "" : allParams[k]);
     }
+    let url = CONFIG.SCRIPT_URL + "?" + q.toString();
 
-    fetch(url, opts)
+    fetch(url, { method: "GET" })
       .then(r => r.json())
       .then(resolve)
       .catch(err => reject(err));
