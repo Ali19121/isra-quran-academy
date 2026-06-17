@@ -1,63 +1,27 @@
-const CACHE_NAME = 'isra-portal-v2';
-const OFFLINE_QUEUE_KEY = 'isra_offline_queue';
-
-const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './app.js',
-  './config.js',
-  './ISRA_QURAN_ACADEMY_LOGO.jpeg',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-  'https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap'
-];
+const CACHE = 'isra-v3';
+const ASSETS = ['./', './index.html', './app.js', './config.js', './ISRA_QURAN_ACADEMY_LOGO.jpeg',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS).catch(() => {}))
-  );
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(() => {})));
   self.skipWaiting();
 });
-
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-  ));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
   self.clients.claim();
 });
-
 self.addEventListener('fetch', e => {
-  let url = e.request.url;
-  // For API calls - network first, queue if offline
-  if (url.includes('script.google.com')) {
-    e.respondWith(
-      fetch(e.request.clone()).catch(() => {
-        return new Response(JSON.stringify({ success: false, offline: true, message: 'Offline mode - data queued' }), {
-          headers: { 'Content-Type': 'application/json' }
-        });
-      })
-    );
+  if (e.request.url.includes('script.google.com')) {
+    e.respondWith(fetch(e.request.clone()).catch(() =>
+      new Response(JSON.stringify({success:false,offline:true,message:'Offline'}), {headers:{'Content-Type':'application/json'}})));
     return;
   }
-  // Static assets - cache first
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).then(resp => {
-      let respClone = resp.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(e.request, respClone));
-      return resp;
-    }).catch(() => caches.match('./index.html')))
-  );
+  e.respondWith(caches.match(e.request).then(c => c || fetch(e.request).then(r => {
+    let rc = r.clone();
+    caches.open(CACHE).then(ca => ca.put(e.request, rc));
+    return r;
+  }).catch(() => caches.match('./index.html'))));
 });
-
-// Background sync for offline queue
 self.addEventListener('sync', e => {
-  if (e.tag === 'sync-offline-data') {
-    e.waitUntil(syncOfflineData());
-  }
+  if (e.tag === 'sync-data') e.waitUntil(self.clients.matchAll().then(cls => cls.forEach(c => c.postMessage({type:'SYNC_NOW'}))));
 });
-
-async function syncOfflineData() {
-  // Notify clients to sync
-  const clients = await self.clients.matchAll();
-  clients.forEach(c => c.postMessage({ type: 'SYNC_NOW' }));
-}

@@ -4,11 +4,15 @@
   "description": "Maktab Management Portal - ISRA Quran Academy",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0F4C5C",
-  "theme_color": "#0F4C5C",
+  "background_color": "#0d3d4a",
+  "theme_color": "#0d3d4a",
   "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "en",
   "icons": [
-    { "src": "ISRA_QURAN_ACADEMY_LOGO.jpeg", "sizes": "192x192", "type": "image/jpeg" },
-    { "src": "ISRA_QURAN_ACADEMY_LOGO.jpeg", "sizes": "512x512", "type": "image/jpeg" }
-  ]
+    { "src": "ISRA_QURAN_ACADEMY_LOGO.jpeg", "sizes": "192x192", "type": "image/jpeg", "purpose": "any maskable" },
+    { "src": "ISRA_QURAN_ACADEMY_LOGO.jpeg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any maskable" }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": []
 }
