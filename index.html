@@ -357,6 +357,36 @@ tr:hover td { background: #fafbfc; }
 }
 
 .hidden { display: none !important; }
+
+/* ===== REPORTS ===== */
+.rp-head { display: flex; align-items: center; gap: 14px; padding: 16px 4px 18px; border-bottom: 2.5px solid var(--teal); margin-bottom: 16px; flex-wrap: wrap; }
+.rp-head img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+.rp-head-t { flex: 1; min-width: 160px; }
+.rp-head-t h2 { font-size: 16px; font-weight: 800; color: var(--teal); margin-bottom: 2px; }
+.rp-head-t div { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.rp-head-t small { font-size: 11px; color: var(--text3); }
+.rp-head-m { text-align: right; font-size: 10.5px; color: var(--text3); line-height: 1.6; }
+.rp-pagebreak { page-break-after: always; height: 1px; margin: 24px 0; border-top: 1px dashed var(--border); }
+.msel { position: relative; }
+.msel-btn { width: 100%; text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px; background: #fff; }
+.msel-btn svg { width: 13px; height: 13px; flex-shrink: 0; opacity: .6; }
+.msel-panel { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 60; background: #fff; border: 1.5px solid var(--border); border-radius: var(--r-sm); max-height: 230px; overflow-y: auto; box-shadow: var(--shadow); padding: 6px; }
+.msel-panel.open { display: block; }
+.msel-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 12px; border-radius: 6px; cursor: pointer; }
+.msel-item:hover { background: #f8fafc; }
+.msel-item input { margin: 0; accent-color: var(--teal); }
+.msel-empty { padding: 10px; font-size: 11.5px; color: var(--text3); text-align: center; }
+.rp-donut-wrap { display: flex; align-items: center; gap: 16px; }
+.rp-donut-leg { font-size: 12px; display: flex; flex-direction: column; gap: 6px; }
+.rp-donut-leg span { display: inline-flex; align-items: center; gap: 6px; }
+.rp-donut-leg i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+@media print {
+  body * { visibility: hidden; }
+  #reportPrintArea, #reportPrintArea * { visibility: visible; }
+  #reportPrintArea { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
+  .no-print { display: none !important; }
+  .card { box-shadow: none !important; border: 1px solid #e2e8f0; }
+}
 </style>
 </head>
 <body>
@@ -469,6 +499,7 @@ tr:hover td { background: #fafbfc; }
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script>

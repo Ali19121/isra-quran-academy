@@ -51,6 +51,45 @@ Agar `AppsScript_Code.gs` me future me changes karein, to:
 2. Repo Settings > Pages > Source: `main` branch, `/ (root)` folder select karein.
 3. Save karein. 1-2 minute me portal live ho jayega: `https://ali19121.github.io/<repo-name>/`
 
+## Reports (NEW — Admin/Superadmin only)
+
+Admin sidebar me ek naya **"Reports"** menu item hai. Isme 6 report types hain:
+
+| Report Type | Kya karta hai |
+|---|---|
+| **Overall Summary (All Markaz)** | Tamam markaz ka majmui khulasa — donut chart (Boys/Girls), district-wise bar chart, aur table |
+| **Supervisor-wise Report** | Har Supervisor ke paas kitne maktab hain (bar chart + table), maktab names, students/teachers count |
+| **Course-wise Report** | Har course/level (Qaida, Nazra, Hifz, Fehm-ul-Quran, Alam, Tafseer) me kitne students hain — bar chart + Boys/Girls breakdown + % |
+| **Markaz-wise Detailed Report** | Aik ya multiple markaz select kar ke har markaz ki full detail (teachers + students list) |
+| **Students List Report** | Filtered students ki poori list |
+| **Teachers List Report** | Filtered teachers ki poori list |
+| **Attendance / Dropout-Risk Report** | Kam hazri (custom % threshold) aur Dropout status wale students ki list, risk badge ke sath |
+
+### Filters (sab report types ke sath istamal ho sakte hain)
+- **Report Type**
+- **Select Supervisor** — multi-select (ek se zyada supervisor ek sath choose kar sakte hain)
+- **Select Maktab** — multi-select (ek se zyada maktab ek sath choose kar sakte hain)
+- **Select Course** — multi-select (Qaida/Nazra/Hifz/Fehm-ul-Quran/Alam/Tafseer/Other — jo bhi Students records me maujood hon, dropdown khud-b-khud us se bharta hai). Ye filter Overall/Supervisor reports ke "Total Students" count ko bhi us course tak mehdood kar deta hai — e.g. sirf "Hifz" select kar ke Overall Summary chalayen to sirf Hifz students ka total dikhega.
+- **District**, **Status** (Active/Inactive)
+- **From Date / To Date** — Students ke Admission Date aur Teachers ke Appointment Date par filter
+- **Gender** (sirf Students report ke liye)
+- **Attendance Threshold %** (sirf Attendance report ke liye, default 75%)
+
+> Student Add/Edit form me "Current Level / Course" dropdown ab **Qaida, Nazra, Hifz (Hafiz), Fehm-ul-Quran, Alam, Tafseer, Other** options rakhta hai — inhi values se Reports me Course filter aur Course-wise Report banti hai.
+
+### Charts
+Overall, Supervisor-wise aur Course-wise reports me **donut chart** (Boys/Girls ratio) aur **bar charts** shamil hain — data ko tables ke sath visually bhi dekha ja sakta hai.
+
+### Export Options
+Har report me 2 buttons:
+- 🖨️ **Print / Save PDF** — sirf report content print hota hai, browser ke "Save as PDF" se PDF bhi bana sakte hain.
+- ⬇️ **Export Excel** — ab **real .xlsx file** banti hai (SheetJS library se), jisme headers, generated-date, aur multiple sheets bhi ho sakti hain (jaise Overall report me "Summary" + "District Breakdown" alag sheets, ya Markaz report me har maktab ki apni sheet).
+
+### Recent Reports Activity
+Reports page ke upar ek chhota panel hai jo pichli 10 generate/export activities dikhata hai (kis ne kab konsi report banayi) — Logs sheet se hi liya jata hai.
+
+Ye poora feature 100% client-side hai (koi Apps Script change nahi chahiye) — existing `getMaktabs`, `getTeachers`, `getStudents`, `getLogs` APIs se hi data leta hai. Sirf Excel export ke liye ek external library (`SheetJS`, CDN se `unpkg.com`) index.html me add ki gayi hai.
+
 ## Roles & Login
 
 | Role | Access |
