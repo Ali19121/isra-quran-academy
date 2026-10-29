@@ -120,3 +120,12 @@ Naye users banane ke liye: Admin login > **Users** > "+ نیا صارف شامل
 - **Login fail** — Users sheet me Username/Password column check karein (case-sensitive nahi, lekin extra space na ho).
 - **Map nahi dikh raha** — internet connection chahiye (OpenStreetMap tiles online se load hoti hain).
 - **Naya data sheet me nahi aa raha** — Apps Script deployment me "Who has access: Anyone" set hona chahiye, aur latest version deploy ho.
+
+## AI Data Analyst (NEW — Admin only)
+Sidebar > **AI Analyst**. Ask in English / Urdu / Roman Urdu. Gemini only turns the question into a JSON query plan (it sees column names, never student rows); the browser calculates every number.
+**Setup (5 min, free):**
+1. Get a free key at https://aistudio.google.com/apikey
+2. Apps Script > Project Settings > **Script Properties** > add `GEMINI_API_KEY` = your key (never put it in config.js).
+3. Paste the updated `AppsScript_Code.gs`, then **Deploy > Manage deployments > Edit > New version > Deploy**. Authorize the external-request permission when asked.
+4. Upload `chatbot.js`, updated `app.js`, `index.html`, `sw.js` to GitHub Pages.
+Limits: app caps 30 questions/user/hour and 200/day; Gemini free-tier limits change, check AI Studio.

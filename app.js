@@ -356,6 +356,7 @@ const ALL_NAV=[
   {id:'students', key:'students', icon:'student', roles:['Admin','Supervisor','Teacher']},
   {id:'mapview',  key:'mapview',  icon:'map',     roles:['Admin','Supervisor']},
   {id:'reports',  key:'reports',  icon:'report',  roles:['Admin']},
+  {id:'assistant',key:'assistant',icon:'bot',     roles:['Admin']},
   {id:'users',    key:'users',    icon:'users',   roles:['Admin']},
   {id:'logs',     key:'logs',     icon:'log',     roles:['Admin']},
   {id:'profile',  key:'profile',  icon:'profile', roles:['Admin','Supervisor','Teacher']},
@@ -397,6 +398,7 @@ function navigate(page){
     case 'students':  renderStudents();  break;
     case 'mapview':   renderMapView();   break;
     case 'reports':   renderReports();   break;
+    case 'assistant': renderAssistant(); break;
     case 'users':     renderUsers();     break;
     case 'logs':      renderLogs();      break;
     case 'profile':   renderProfile();   break;

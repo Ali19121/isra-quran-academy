@@ -48,6 +48,7 @@ function handleReq(e) {
       case 'getLogs':        result = getRows(ss, 'Logs', p);            break;
       case 'addLog':         result = addLogRow(ss, p);                  break;
       case 'getHadith':      result = getHadith(ss, p);                  break;
+      case 'aiPlan':         result = aiPlan(ss, p);                     break;
       default: result = { success: false, message: 'Unknown action: ' + action };
     }
 
@@ -318,4 +319,47 @@ function Setup_CreateSheets() {
     'Admin login:\n  Username: admin\n  Password: admin123\n\n' +
     '⚠️ Please change password after first login!'
   );
+}
+
+
+/* ===== AI PLANNER (Gemini free tier). Key lives ONLY in Script Properties: GEMINI_API_KEY =====
+ * Gemini receives the question + column schema (never row data) and returns a JSON query plan.
+ * The browser executes the plan with whitelisted operations. */
+function aiPlan(ss, p) {
+  var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+  if (!key) return { success: false, message: 'GEMINI_API_KEY is not set in Script Properties.' };
+  var users = ss.getSheetByName('Users').getDataRange().getValues(), u = null;
+  for (var i = 1; i < users.length; i++) {
+    if (String(users[i][0]).trim().toLowerCase() === String(p.username||'').trim().toLowerCase()) { u = users[i]; break; }
+  }
+  if (!u || String(u[6]).toLowerCase() === 'inactive' || String(u[2]).toLowerCase() !== 'admin')
+    return { success: false, message: 'AI Analyst is available to Admin only.' };
+  if (!p.question || String(p.question).length > 600 || String(p.schema||'').length > 12000)
+    return { success: false, message: 'Invalid request size.' };
+  var c = CacheService.getScriptCache(), now = new Date();
+  var hk = 'ai_h_' + u[0] + Utilities.formatDate(now,'UTC','yyyyMMddHH'), dk = 'ai_d_' + Utilities.formatDate(now,'UTC','yyyyMMdd');
+  var hn = Number(c.get(hk))||0, dn = Number(c.get(dk))||0;
+  if (hn >= 30) return { success: false, message: 'Hourly limit (30 questions) reached.' };
+  if (dn >= 200) return { success: false, message: 'Daily AI quota reached. Try tomorrow.' };
+  c.put(hk, String(hn+1), 3700); c.put(dk, String(dn+1), 90000);
+
+  var sys = 'You are a query planner for a school-management Google Sheet. Output ONLY JSON: '
+   + '{"reply":"one short sentence in the user\'s language (English/Urdu/Roman Urdu)","output":"answer|report|ppt","title":"...",'
+   + '"queries":[{"title":"...","dataset":"<sheet name from SCHEMA>","filters":[{"field":"","op":"=|!=|>|>=|<|<=|contains|in|blank|notblank","value":""}],'
+   + '"groupBy":["Column" or "DateColumn:year|quarter|month"],"metrics":[{"fn":"count|sum|avg|min|max|distinct|missing","field":"optional for count"}],'
+   + '"sort":{"by":"column label","dir":"asc|desc"},"limit":0,"minCount":0,"pctChange":false,"columns":[],"chart":"bar|line|pie|doughnut|stacked|none"}]}. '
+   + 'Use ONLY dataset and column names in SCHEMA and values from listed categories. Never invent data or numbers. '
+   + 'Use 2 groupBy columns for comparisons (e.g. District x Gender). For duplicates use groupBy on identifying columns with minCount 2. '
+   + 'Year-over-year: groupBy a date column with ":year", pctChange true. Use output "report" for reports, "ppt" for presentations (one query per slide, honour requested slide count minus title/conclusion). '
+   + 'If the question cannot be answered from SCHEMA, return queries [] and explain in reply.';
+  var body = { systemInstruction: { parts: [{ text: sys }] },
+    contents: [{ role: 'user', parts: [{ text: 'SCHEMA:\n' + p.schema + '\n\nQUESTION:\n' + p.question }] }],
+    generationConfig: { responseMimeType: 'application/json', temperature: 0.1 } };
+  var r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+    method: 'post', contentType: 'application/json', headers: { 'x-goog-api-key': key }, payload: JSON.stringify(body), muteHttpExceptions: true });
+  if (r.getResponseCode() !== 200) return { success: false, message: 'Gemini error ' + r.getResponseCode() + (r.getResponseCode()===429?' (free-tier rate limit; wait a minute)':'') };
+  try {
+    var t = JSON.parse(r.getContentText()).candidates[0].content.parts[0].text;
+    return { success: true, plan: JSON.parse(t.replace(/```json|```/g,'')) };
+  } catch (e) { return { success: false, message: 'AI returned an unreadable plan. Please rephrase.' }; }
 }
