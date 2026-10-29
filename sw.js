@@ -1,5 +1,5 @@
-const CACHE = 'isra-v3';
-const ASSETS = ['./', './index.html', './app.js', './config.js', './ISRA_QURAN_ACADEMY_LOGO.jpeg',
+const CACHE = 'isra-v5';
+const ASSETS = ['./', './index.html', './app.js', './chatbot.js', './config.js', './ISRA_QURAN_ACADEMY_LOGO.jpeg',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
 
 self.addEventListener('install', e => {
@@ -16,11 +16,12 @@ self.addEventListener('fetch', e => {
       new Response(JSON.stringify({success:false,offline:true,message:'Offline'}), {headers:{'Content-Type':'application/json'}})));
     return;
   }
-  e.respondWith(caches.match(e.request).then(c => c || fetch(e.request).then(r => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(fetch(e.request).then(r => {
     let rc = r.clone();
     caches.open(CACHE).then(ca => ca.put(e.request, rc));
     return r;
-  }).catch(() => caches.match('./index.html'))));
+  }).catch(() => caches.match(e.request).then(c => c || caches.match('./index.html'))));
 });
 self.addEventListener('sync', e => {
   if (e.tag === 'sync-data') e.waitUntil(self.clients.matchAll().then(cls => cls.forEach(c => c.postMessage({type:'SYNC_NOW'}))));

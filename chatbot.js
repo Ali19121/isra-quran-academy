@@ -1,5 +1,6 @@
 /* ISRA AI Data Analyst — Gemini plans, the app calculates. No AI-generated code is ever executed. */
 (function(G){
+console.log('ISRA AI Analyst loaded');
 const CB={ds:{},cols:{},types:{},t:null,items:[],res:{},n:0,busy:false};
 const BLOCK=['Password','CNIC','FatherCNIC','FatherPhone','Phone','HeadContact','HeadWhatsApp'];
 const NUMF=['Salary','Capacity','TotalStudents','Boys','Girls','TotalTeachers','Attendance','Latitude','Longitude','Experience'];
