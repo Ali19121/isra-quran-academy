@@ -109,7 +109,9 @@ async function loadData(force){
 }
 async function askAI(q){
   const body=new URLSearchParams({action:'aiPlan',username:currentUser.Username,question:q,schema:schema()});
-  const r=await fetch(CONFIG.SCRIPT_URL,{method:'POST',body}).then(r=>r.json());
+  const ac=new AbortController(),to=setTimeout(()=>ac.abort(),75000);
+  let r;try{r=await fetch(CONFIG.SCRIPT_URL,{method:'POST',body,signal:ac.signal}).then(r=>r.json())}
+  catch(e){throw Error(e.name==='AbortError'?'Server took too long (75s). Run testGemini in Apps Script to check Gemini.':'Could not reach Apps Script: '+e.message)}finally{clearTimeout(to)}
   if(!r.success)throw Error(r.message||'AI request failed');return r.plan;
 }
 
